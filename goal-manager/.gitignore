@@ -1,0 +1,40 @@
+# --- Специфика Qt ---
+*.user
+*.user.*
+*.autosave
+*.qmlc
+*.jsc
+.qmake.stash
+
+# --- Артефакты CMake ---
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+Makefile
+
+# --- Папки сборки (Qt Creator создает их при компиляции) ---
+build/
+build-*/
+dist/
+.qtcreator/
+*.user
+
+# --- Игнорирование скомпилированных файлов C++ ---
+*.o
+*.obj
+*.so
+*.a
+*.lib
+*.dll
+*.exe
+
+# --- Системный мусор (Windows, macOS, Linux) ---
+.DS_Store
+Thumbs.db
+*~
+
+# --- Настройки IDE ---
+.vscode/
+.idea/
+
