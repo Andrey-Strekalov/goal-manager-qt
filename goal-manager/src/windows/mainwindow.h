@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QTimer>
+#include <QStringListModel>
+#include "../core/itemdelegate.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,6 +24,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QTimer *autoSaveTimer;
+    QStringListModel *listModel;
+    ItemDelegate *itemDelegate;
 };
 
 #endif // MAINWINDOW_H

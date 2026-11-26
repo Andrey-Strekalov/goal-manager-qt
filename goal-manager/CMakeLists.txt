@@ -19,6 +19,8 @@ qt_add_executable(goal-manager
     src/core/goalvalidator.cpp
     src/core/goalcalculator.h
     src/core/goalcalculator.cpp
+    src/core/itemdelegate.h
+    src/core/itemdelegate.cpp
 )
 
 set_property(TARGET goal-manager PROPERTY AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/src/ui")
