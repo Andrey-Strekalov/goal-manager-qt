@@ -6,6 +6,7 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QAction>
+#include <QPushButton>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -41,12 +42,29 @@ MainWindow::MainWindow(QWidget *parent)
 
     QAction *addAction = toolBar->addAction("Добавить");
     connect(addAction, &QAction::triggered, this, []() {
-        qDebug() << "[LOG] Пользователь нажал кнопку 'Добавить'";
+        qDebug() << "[LOG] Пользователь нажал кнопку 'Добавить' на тулбаре";
     });
 
     QAction *deleteAction = toolBar->addAction("Удалить");
     connect(deleteAction, &QAction::triggered, this, []() {
-        qDebug() << "[LOG] Пользователь нажал кнопку 'Удалить'";
+        qDebug() << "[LOG] Пользователь нажал кнопку 'Удалить' на тулбаре";
+    });
+
+    connect(ui->btnAdd, &QPushButton::clicked, this, []() {
+        qDebug() << "[LOG] Интерфейс: нажата кнопка 'Добавить'";
+    });
+
+    connect(ui->btnDelete, &QPushButton::clicked, this, []() {
+        qDebug() << "[LOG] Интерфейс: нажата кнопка 'Удалить'";
+    });
+
+    connect(ui->btnSave, &QPushButton::clicked, this, [this]() {
+        qDebug() << "[LOG] Интерфейс: нажата кнопка 'Сохранить'";
+        saveData();
+    });
+
+    connect(ui->btnSettings, &QPushButton::clicked, this, []() {
+        qDebug() << "[LOG] Интерфейс: нажата кнопка 'Настройки'";
     });
 
     statusBar()->showMessage("Готов к работе");
