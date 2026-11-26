@@ -7,64 +7,70 @@
 #include <QStatusBar>
 #include <QAction>
 #include <QPushButton>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , autoSaveTimer(new QTimer(this))
+    , listModel(new QStringListModel(this))
+    , itemDelegate(new ItemDelegate(this))
 {
     ui->setupUi(this);
 
     connect(autoSaveTimer, &QTimer::timeout, this, &MainWindow::saveData);
     autoSaveTimer->start(60000);
 
+    ui->listViewGoals->setModel(listModel);
+    ui->listViewGoals->setItemDelegate(itemDelegate);
+
+    QStringList initialGoals;
+    initialGoals << "Изучить Qt" << "Сделать сквозной проект" << "Сдать экзамен";
+    listModel->setStringList(initialGoals);
+
     QMenu *fileMenu = menuBar()->addMenu("Файл");
-
-    QAction *saveAction = fileMenu->addAction("Сохранить сейчас");
-    connect(saveAction, &QAction::triggered, this, [this]() {
-        qDebug() << "[LOG] Пользователь нажал 'Сохранить сейчас'";
-        saveData();
-    });
-
     QAction *exitAction = fileMenu->addAction("Выход");
     connect(exitAction, &QAction::triggered, this, [this]() {
-        qDebug() << "[LOG] Пользователь закрывает приложение.";
         this->close();
     });
 
-    QMenu *helpMenu = menuBar()->addMenu("Справка");
-    QAction *aboutAction = helpMenu->addAction("О программе");
-    connect(aboutAction, &QAction::triggered, this, []() {
-        qDebug() << "[LOG] Пользователь открыл окно 'О программе'";
-    });
-
     QToolBar *toolBar = addToolBar("Инструменты");
+    toolBar->addAction("Добавить");
 
-    QAction *addAction = toolBar->addAction("Добавить");
-    connect(addAction, &QAction::triggered, this, []() {
-        qDebug() << "[LOG] Пользователь нажал кнопку 'Добавить' на тулбаре";
+    connect(ui->btnAdd, &QPushButton::clicked, this, [this]() {
+        QString newGoal = ui->lineEditGoalInput->text().trimmed();
+        if (newGoal.isEmpty()) {
+            QMessageBox::warning(this, "Ошибка", "Название цели не может быть пустым.");
+            return;
+        }
+        int row = listModel->rowCount();
+        listModel->insertRow(row);
+        QModelIndex index = listModel->index(row, 0);
+        listModel->setData(index, newGoal, Qt::EditRole);
+        ui->lineEditGoalInput->clear();
+        qDebug() << "[LOG] Добавлена новая цель:" << newGoal;
     });
 
-    QAction *deleteAction = toolBar->addAction("Удалить");
-    connect(deleteAction, &QAction::triggered, this, []() {
-        qDebug() << "[LOG] Пользователь нажал кнопку 'Удалить' на тулбаре";
+    connect(ui->btnDelete, &QPushButton::clicked, this, [this]() {
+        QModelIndex currentIndex = ui->listViewGoals->currentIndex();
+        if (!currentIndex.isValid()) {
+            QMessageBox::information(this, "Внимание", "Выберите цель для удаления.");
+            return;
+        }
+        listModel->removeRow(currentIndex.row());
+        qDebug() << "[LOG] Удалена цель";
     });
 
-    connect(ui->btnAdd, &QPushButton::clicked, this, []() {
-        qDebug() << "[LOG] Интерфейс: нажата кнопка 'Добавить'";
-    });
+    connect(ui->btnClear, &QPushButton::clicked, this, [this]() {
+        if (listModel->rowCount() == 0) return;
 
-    connect(ui->btnDelete, &QPushButton::clicked, this, []() {
-        qDebug() << "[LOG] Интерфейс: нажата кнопка 'Удалить'";
-    });
-
-    connect(ui->btnSave, &QPushButton::clicked, this, [this]() {
-        qDebug() << "[LOG] Интерфейс: нажата кнопка 'Сохранить'";
-        saveData();
-    });
-
-    connect(ui->btnSettings, &QPushButton::clicked, this, []() {
-        qDebug() << "[LOG] Интерфейс: нажата кнопка 'Настройки'";
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Подтверждение", "Вы уверены, что хотите очистить весь список?",
+                                      QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+            listModel->removeRows(0, listModel->rowCount());
+            qDebug() << "[LOG] Список очищен полностью";
+        }
     });
 
     statusBar()->showMessage("Готов к работе");
